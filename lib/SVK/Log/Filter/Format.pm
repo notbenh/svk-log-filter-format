@@ -1,11 +1,9 @@
 package SVK::Log::Filter::Format;
-
-use warnings;
-use strict;
-
+use base qw( SVK::Log::Filter::Output );
+       
 =head1 NAME
 
-SVK::Log::Filter::Format - The great new SVK::Log::Filter::Format!
+SVK::Log::Filter::Format - Specify a format at runtime.
 
 =head1 VERSION
 
@@ -18,7 +16,7 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+
 
 Perhaps a little code snippet.
 
@@ -27,25 +25,28 @@ Perhaps a little code snippet.
     my $foo = SVK::Log::Filter::Format->new();
     ...
 
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 FUNCTIONS
-
-=head2 function1
-
 =cut
 
-sub function1 {
+use Data::Dumper; sub D (@){print Dumper(@_)};
+sub setup {
+   my ($self) = @_;
+   $self->{argument} =~ s/\\t/ __TAB__/ig;
+   $self->{argument} =~ s/\\n/ __NEWLINE__/ig;
+   $self->{log_format} = [split /\b/, $self->{argument}];
 }
+       
+sub revision {
+   my ($self, $args) = @_;
 
-=head2 function2
+   my $out = join '', map{ $args->{$_} || $args->{props}{'svn:'.$_} || $_ ;
+                         } @{$self->{log_format}};
 
-=cut
+   #$out = join /\\/, split / _SLASH_/, $out;
+   $out =~ s/ __TAB__/\t/g;
+   $out =~ s/ __NEWLINE__/\n/g;
 
-sub function2 {
+   print $out;
+   
 }
 
 =head1 AUTHOR
@@ -57,9 +58,6 @@ ben hengst, C<< <notbenh at cpan.org> >>
 Please report any bugs or feature requests to C<bug-svk-log-filter-format at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVK-Log-Filter-Format>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-
-
 
 =head1 SUPPORT
 
@@ -93,6 +91,7 @@ L<http://search.cpan.org/dist/SVK-Log-Filter-Format/>
 
 =head1 ACKNOWLEDGEMENTS
 
+Big thanks to CL for SVK, as with out that, this would not be possible.
 
 =head1 COPYRIGHT & LICENSE
 
@@ -104,4 +103,4 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of SVK::Log::Filter::Format
+1;
